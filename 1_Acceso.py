@@ -25,7 +25,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     handlers=[RotatingFileHandler(os.path.join(direc,"MENSAJES_PASOS_Output.log"), maxBytes=1000000, backupCount=4)],
     format='%(asctime)s %(levelname)s %(message)s',
-    datefmt='%m/%d/%Y %I:%M:%S %p')
+    datefmt='%d/%m/%Y %I:%M:%S %p')
 
 st.set_page_config("Resultados",layout="centered")
 
