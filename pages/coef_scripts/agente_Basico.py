@@ -8,11 +8,27 @@
 import mysql.connector
 import sys
 import os
-# import logging
+import logging
+from logging.handlers import RotatingFileHandler
 import configparser
 from time import sleep
 
-SLEEPING_MS = 10/1000
+SLEEPING_MS = 10./1000.
+
+path = os.getcwd()
+direc = os.path.join(path,"logs")
+if not os.path.exists(direc):
+    try:
+        os.mkdir(direc)
+    except Exception as e:
+        direc = path
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    handlers=[RotatingFileHandler(os.path.join(direc,"Mensajes_Agente.log"), maxBytes=1000000, backupCount=4)],
+    format='%(asctime)s %(levelname)s %(message)s',
+    datefmt='%m/%d/%Y %I:%M:%S %p')
+
 
 class SingletonMeta(type):
     """
@@ -86,8 +102,8 @@ class Agente_MySql(metaclass=SingletonMeta):
             print("conexión realizada")
 
         except mysql.connector.Error as e:
-            print(f"Error connecting to MariaDB Platform: {e}")
-            sys.exit(1)
+            mensaje = "Error conectando a MariaDB Platform: "
+            logging.debug(mensaje+str(e))
 
     def isValidConection(self) :
         """
@@ -124,14 +140,15 @@ class Agente_MySql(metaclass=SingletonMeta):
                 devuelve= self.cursor.fetchall()
                 # Devolvemos el relleno
                 return devuelve
-            except:
-                #Ejecuta el comando pero no envia datos
+            except Exception as e :
+                # mensaje = "Nada que devolver de la consulta individual: "
+                # logging.info(mensaje+str(e))
                 return
-
+            
         except Exception as e :
-            mensaje = "Error en el MySqlAgent: MySqlAgent.execute()"
-            sleep(SLEEPING_MS)
-            # logging.debug(mensaje+str(e))
+            mensaje = "Excepcion en el MySqlAgent.execute: "
+            logging.debug(mensaje+str(e))
+            sys.exit()
 
     def ejecutarMuchos(self,sql,listaarg):
         """
@@ -157,18 +174,17 @@ class Agente_MySql(metaclass=SingletonMeta):
                 devuelve = self.cursor.rowcount
                 # Devolvemos
                 return devuelve
-            except:
-                #Ejecuta el comando pero no envia datos
+            except Exception as e:
+                # mensaje = "MySqlAgent.executemany(), no puede enviar respuesta: "
+                # logging.info(mensaje + str(e))
                 return
 
         except Exception as e:
             mensaje = "Error en el MySqlAgent: MySqlAgent.executemany()"
-            # logging.debug(mensaje+str(e))
-            print("No se pudo enviar a la base de datos toda la informacion.")
-            print("Lista: ",listaarg[0])
-            print("Error", str(e))
+            logging.info("No se pudo enviar a la base de datos toda la informacion.")
+            logging.info("Lista: "+listaarg[0])
+            logging.debug(mensaje + str(e))
             sys.exit()
-
     def  commitTransaction(self):
         """
         Definición: Método encargado de realizar el commit de la transacción.
@@ -191,8 +207,11 @@ class Agente_MySql(metaclass=SingletonMeta):
             self.conn.autocommit = True
 
         except Exception as e :
-            mensaje = "Error en el MySqlAgent: MySqlAgent.commitTransaction()"
-            # logging.debug(mensaje, e)
+            # mensaje = "Excepcion MySqlAgent.commitTransaction: "
+            # logging.info(mensaje+str(e))
+            pass
+        
+        return
 
     def  rollBackTransaction(self):
         """
@@ -217,6 +236,6 @@ class Agente_MySql(metaclass=SingletonMeta):
             self.cursor.autocommit = True
             
         except Exception as e :
-            mensaje = "Error en el MySqlAgent: MySqlAgent.rollBackTransaction()"
-            # logging.debug(mensaje, e)
+            mensaje = "Error en el MySqlAgent.rollBackTransaction: "
+            logging.debug(mensaje+str(e))
 
