@@ -3,7 +3,6 @@
 
 import streamlit as st
 import datetime as dt
-from geopy.geocoders import Nominatim 
 from string import punctuation
 
 import logging
@@ -46,11 +45,6 @@ def camposDataframe(concepto, datos, columnas, add = True):
     info = st.session_state[concepto]
     df = pd.DataFrame(info, columns=columnas)
     return df
-
-#Creacion de un localizador de coordenadas
-geolocator = Nominatim(user_agent="aplication")
-if 'localizador' not in st.session_state:
-    st.session_state.localizador = geolocator.geocode("Zaragoza")
     
 # Comienza la pagina
 st.title("DATOS")
@@ -111,10 +105,6 @@ with tab1:
         st.session_state.nComunidad = nombreCE
         st.session_state.saltoSimu = False
         st.success('Ya puedes pasar a la siguiente pestaña: Fotovoltaicos.', icon="✅")
-        try:
-            st.session_state.localizador = geolocator.geocode(ubicacion)
-        except:
-            pass
     if gralComu != None:
         dfComu = camposDataframe("comunidades",gralComu,colums,addce)
         conceptos = ["name", "location", "inst_cost", "inst_monthly_fee"]
@@ -122,8 +112,6 @@ with tab1:
             comunidadEnerg[i] = j
         comunidadEnerg["id_administrator"] = 1
         ce = True
-
-    
 
 with tab2:
     st.info("Nota aclaratoria: Si hay eólica y no hay FV, puedes pasar al definir la generación eólica.")

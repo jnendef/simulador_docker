@@ -7,7 +7,6 @@ charset-normalizer==3.4.1
 click==8.1.8
 colorama==0.4.6
 geographiclib==2.0
-geopy==2.4.1
 gitdb==4.0.12
 GitPython==3.1.44
 holidays==0.66
